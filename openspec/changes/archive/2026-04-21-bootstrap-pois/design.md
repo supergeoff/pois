@@ -100,15 +100,15 @@ pois/
 - *Workspace 2 crates (runtime/bin)* : repoussé — cérémonie sans bénéfice tant qu'il n'y a pas un second consommateur du runtime.
 - *Workspace fin-grained (5+ crates)* : repoussé — encore plus de cérémonie, encore moins justifié.
 
-### D3. Toolchain : édition 2024, MSRV 1.85, stable
+### D3. Toolchain : édition 2024, MSRV 1.95, stable
 
-**Choix** : `rust-toolchain.toml` épingle `channel = "1.85.0"`, `components = ["rustfmt", "clippy"]`, `profile = "minimal"`. Le `Cargo.toml` déclare `edition = "2024"` et `rust-version = "1.85.0"`.
+**Choix** : `rust-toolchain.toml` épingle `channel = "1.95.0"`, `components = ["rustfmt", "clippy"]`, `profile = "minimal"`. Le `Cargo.toml` déclare `edition = "2024"` et `rust-version = "1.95.0"`.
 
-**Rationale** : 1.85 a stabilisé l'édition 2024 en février 2025 ; 14 mois après, l'édition 2024 est mûre. Pas de raison de se priver.
+**Rationale** : 1.95 est la stable courante à la date du cadrage (avril 2026) et correspond à la toolchain effectivement utilisée pour le développement. Pin MSRV = stable courante évite tout écart silencieux entre dev local et CI. Si un bump MSRV futur devient nécessaire, il passera par une proposition dédiée (`bump-msrv`).
 
 ### D4. Stack web : axum + askama + htmx, SSR
 
-**Choix** : `axum` pour le serveur HTTP, `tower-http` pour middlewares (trace, basic auth via extractor custom ou `ValidateRequestHeaderLayer`), `askama` pour templates typés à la compilation, `htmx` vendorisé en `static/` pour l'interactivité côté client.
+**Choix** : `axum` pour le serveur HTTP, `tower-http` pour middlewares (trace, basic auth via extractor custom ou `ValidateRequestHeaderLayer`), `askama` pour templates typés à la compilation, `htmx` + `pico.css` servis depuis CDN (jsDelivr / unpkg) pour l'interactivité et le style côté client. Pas de vendoring `static/` au bootstrap : les URLs CDN sont figées en commentaire dans `templates/base.html` et toute montée de version passe par une proposition dédiée.
 
 **Rationale** :
 
@@ -197,11 +197,11 @@ pois/
 - **[Mono-crate dégénère en monolithe]** quand le code grossira, les modules `agent`, `channels`, `providers`, `mcp` vont se cross-importer et rendre le refactor coûteux. → *Mitigation* : la politique « ajouter un crate passe par proposition » exige qu'on pense l'extraction dès qu'une frontière devient claire. Le premier candidat sera probablement `providers` ou `mcp`.
 - **[Basic auth perçue comme faible]** la tentation sera de « vite » ajouter un login page, OAuth, etc. → *Mitigation* : le spec borne ça. Tout changement demande une proposition qui justifie la valeur ajoutée.
 - **[Schéma `/data/` gravé trop tôt]** on a figé la structure sans avoir écrit un seul agent — elle peut se révéler fausse. → *Mitigation* : le spec liste les sous-dossiers (`agents/`, `honcho/`, `logs/`) et dit explicitement que le schéma interne de chaque fichier est hors scope. Les propositions suivantes peuvent amender via `MODIFIED Requirements` quand l'usage montre un besoin.
-- **[htmx vendorisé vieillit]** il faut mettre à jour la version périodiquement. → *Mitigation* : version écrite dans un commentaire de `static/htmx.min.js` ; upgrade = proposition dédiée.
+- **[Dépendance CDN pour htmx / pico.css]** si le CDN tombe, le dashboard perd interactivité et style. → *Mitigation* : assumé au bootstrap (simplicité > disponibilité offline pour un outil perso). Un pin `sri` et/ou une bascule vers vendoring `static/` peut arriver par proposition dédiée quand le dashboard portera de la logique réelle.
 - **[askama requiert recompilation à chaque changement de template]** peut ralentir le dev. → *Mitigation* : c'est le prix à payer pour la sûreté de type ; `cargo watch` + les templates petits limitent la gêne.
-- **[Docker image trop grosse]** si on utilise `FROM rust` naïvement, l'image fait des centaines de Mo. → *Mitigation* : Dockerfile multi-stage — build dans `rust:1.85-slim`, copie du binaire dans `debian:bookworm-slim` ou `gcr.io/distroless/cc-debian12`.
+- **[Docker image trop grosse]** si on utilise `FROM rust` naïvement, l'image fait des centaines de Mo. → *Mitigation* : Dockerfile multi-stage — build dans `rust:1.95-slim`, copie du binaire dans `debian:bookworm-slim` ou `gcr.io/distroless/cc-debian12`.
 - **[Railway incident / vendor lock-in]** si Railway disparaît, le spec mentionne Railway nommément. → *Mitigation* : le spec dit « compatible PaaS type Railway », et le Dockerfile est standard — tout autre PaaS (Fly, Render) marchera.
-- **[MSRV 1.85 incompatible avec une future dep]** certaines crates récentes pourraient exiger 1.87+. → *Mitigation* : bump via proposition `bump-msrv`. Pas bloquant.
+- **[MSRV 1.95 évolue vite]** la stable courante avance d'une version toutes les 6 semaines ; pin à 1.95 signifie que dans 6 mois l'écosystème peut exiger plus récent. → *Mitigation* : bump MSRV via proposition `bump-msrv` dès qu'une dep utile requiert une version plus haute. Pas bloquant.
 
 ## Migration Plan
 

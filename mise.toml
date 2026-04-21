@@ -1,2 +1,6 @@
+[tools]
+rust = "1.95.0"
+"npm:@anthropic-ai/claude-code" = "latest"
+
 [env]
 HONCHO_WORKSPACE_ID = "pois"

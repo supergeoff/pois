@@ -6,7 +6,7 @@ Avant d'écrire toute logique d'agent, il faut (1) figer les fondations techniqu
 
 ## What Changes
 
-- Figer la toolchain Rust (édition 2024, MSRV 1.85) via `rust-toolchain.toml`.
+- Figer la toolchain Rust (édition 2024, MSRV 1.95) via `rust-toolchain.toml`.
 - Adopter un **layout mono-crate** (`pois`) avec modules plutôt qu'un workspace multi-crate — cohérent avec un outil personnel mono-binaire ; l'extraction en crates viendra par proposition dédiée si une frontière émerge.
 - Figer la stack transverse : `tokio` (runtime unique), `axum` + `askama` + `htmx` (dashboard SSR), `serde` + `toml` (config), `clap` (CLI), `tracing` (logs).
 - Figer la cible de distribution : binaire Linux statique empaqueté dans une image Docker, volume `/data/` monté, port via `PORT` (env), dashboard protégé par basic auth (`POIS_ADMIN_USER` / `POIS_ADMIN_PASS`).
@@ -33,7 +33,7 @@ Avant d'écrire toute logique d'agent, il faut (1) figer les fondations techniqu
 ## Impact
 
 - **Code produit** : binaire qui compile, démarre, sert `/health` derrière basic auth, lit son volume `/data/`. Aucune logique d'agent, de channel, de provider ou de MCP.
-- **Fichiers créés** : `rust-toolchain.toml`, `Cargo.toml`, `Cargo.lock` (commité), `.gitignore`, `Dockerfile`, `.dockerignore`, `src/main.rs`, `src/lib.rs`, modules stubs (`src/cli/`, `src/gateway/`, `src/config/`, `src/data/`), `templates/` (askama, au moins `base.html` et `index.html`), `static/` (htmx vendorisé ou CDN — à trancher dans tasks).
+- **Fichiers créés** : `rust-toolchain.toml`, `Cargo.toml`, `Cargo.lock` (commité), `.gitignore`, `Dockerfile`, `.dockerignore`, `src/main.rs`, `src/lib.rs`, modules stubs (`src/cli/`, `src/gateway/`, `src/config/`, `src/data/`), `templates/` (askama, au moins `base.html` et `index.html`). Pas de répertoire `static/` au bootstrap : htmx et pico.css sont chargés depuis CDN, la bascule vers vendoring passera par une proposition dédiée.
 - **Fichiers modifiés** : `openspec/project.md` réécrit intégralement.
 - **Dépendances Rust introduites** : `tokio`, `axum`, `tower-http`, `askama`, `serde`, `serde_derive`, `toml`, `clap` (avec `derive`), `tracing`, `tracing-subscriber`, `thiserror`, `anyhow` (surface main uniquement). Versions précises arrêtées dans `design.md` / `tasks.md`.
 - **Dépendances NON introduites** (explicitement reportées) : `teloxide`, `rmcp`, `reqwest`, `async-openai`, client Honcho, crate de base de données, `notify`. Chacune arrivera avec la proposition qui la justifie.

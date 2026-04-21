@@ -1,3 +1,11 @@
+# --- Rust ---
+/target
+*.rs.bk
+
+# --- Editor ---
+/.vscode/
+/.idea/
+
 # --- Claude Code stack artifacts ---
 .serena/cache/
 .serena/memories/

@@ -1,0 +1,12 @@
+target/
+.git/
+.gitignore
+.dockerignore
+openspec/changes/
+openspec/archive/
+.claude/
+.serena/
+.cocoindex_code/
+mise.toml
+*.md
+!README.md

@@ -1,4 +1,10 @@
-## ADDED Requirements
+# project-foundations Specification
+
+## Purpose
+
+Cette capability définit les invariants fondamentaux du projet `pois` : identité produit, toolchain Rust, layout de crate, runtime asynchrone, conventions d'erreurs, politique de formatage et de lint, schéma de persistance `/data`, cible de déploiement Docker/Railway, et authentification du dashboard. Ces invariants constituent le socle sur lequel toutes les autres capabilities se construisent ; toute modification passe obligatoirement par une proposition OpenSpec dédiée.
+
+## Requirements
 
 ### Requirement: Product shape is documented
 
@@ -11,17 +17,17 @@ Le projet SHALL documenter, dans `openspec/project.md`, son identité produit : 
 
 ### Requirement: Rust toolchain is pinned
 
-Le dépôt SHALL fournir, à la racine, un fichier `rust-toolchain.toml` qui épingle le canal `stable` à la version `1.85.0` (MSRV) et inclut les composants `rustfmt` et `clippy`. Le crate `pois` MUST déclarer `edition = "2024"` dans son manifeste.
+Le dépôt SHALL fournir, à la racine, un fichier `rust-toolchain.toml` qui épingle le canal `stable` à la version `1.95.0` (MSRV) et inclut les composants `rustfmt` et `clippy`. Le crate `pois` MUST déclarer `edition = "2024"` dans son manifeste.
 
 #### Scenario: rust-toolchain.toml existe et active la toolchain
 
 - **WHEN** un contributeur clone le dépôt avec `rustup` installé et lance `cargo --version`
-- **THEN** la toolchain `1.85.0` stable est sélectionnée automatiquement
+- **THEN** la toolchain `1.95.0` stable est sélectionnée automatiquement
 
 #### Scenario: Le crate cible l'édition 2024
 
 - **WHEN** un contributeur inspecte `Cargo.toml`
-- **THEN** le champ `package.edition` vaut `"2024"` et `package.rust-version` vaut `"1.85.0"`
+- **THEN** le champ `package.edition` vaut `"2024"` et `package.rust-version` vaut `"1.95.0"`
 
 ### Requirement: Single-crate layout
 
