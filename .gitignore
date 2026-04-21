@@ -1,0 +1,7 @@
+# --- Claude Code stack artifacts ---
+.serena/cache/
+.serena/memories/
+.cocoindex_code/
+.claude/settings.local.json
+.claude/sessions/
+.claude/logs/
