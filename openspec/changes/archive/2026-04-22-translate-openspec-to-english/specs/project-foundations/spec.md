@@ -1,10 +1,4 @@
-# project-foundations Specification
-
-## Purpose
-
-This capability defines the fundamental invariants of the `pois` project: product identity, Rust toolchain, crate layout, asynchronous runtime, error conventions, formatting and lint policy, `/data` persistence schema, Docker/Railway deployment target, and dashboard authentication. These invariants form the foundation on which every other capability is built; any modification MUST go through a dedicated OpenSpec proposal.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Product shape is documented
 
@@ -243,4 +237,3 @@ be merged without an associated proposal.
   `openspec/project.md`, or the auth sections of the `Dockerfile`,
   without an associated OpenSpec proposal
 - **THEN** review requires the proposal to be opened before merge
-
