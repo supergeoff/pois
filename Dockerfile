@@ -15,6 +15,7 @@ RUN apt-get update \
 COPY --from=builder /src/target/release/pois /usr/local/bin/pois
 
 ENV POIS_DATA_DIR=/data
+ENV POIS_LOG_FORMAT=json
 VOLUME ["/data"]
 EXPOSE 8080
 

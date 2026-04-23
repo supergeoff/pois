@@ -20,9 +20,9 @@ dashboard protected by basic auth from a distance.
 - **Web**: `axum` + `askama` (compile-time typed templates) + `htmx` (CDN) + `pico.css` (CDN)
 - **Config**: `serde` + `toml` (TOML everywhere — global and per-agent)
 - **CLI**: `clap` (derive, env)
-- **Observability**: `tracing` + `tracing-subscriber` (JSON in prod via `POIS_LOG_FORMAT=json`, compact in dev)
+- **Observability**: `tracing` + `tracing-subscriber` (JSON in prod via `POIS_LOG_FORMAT=json`, pretty in dev (default))
 - **Errors**: `thiserror` in runtime modules, `anyhow` tolerated in `main` / init
-- **Build / distribution**: Cargo (single crate, `[[bin]]` + `[lib]`), multi-stage Dockerfile (`rust:1.95-slim` → `debian:bookworm-slim`)
+- **Build / distribution**: Cargo (single crate, `[[bin]]` + `[lib]`), OCI container image via multi-stage `Dockerfile` (`rust:1.95-slim` → `debian:bookworm-slim`)
 
 ## Project structure
 
@@ -105,8 +105,9 @@ proposals cited above.
 
 ## Deployment
 
-- **Primary target**: Railway (PaaS). Any Docker-compatible PaaS
-    (Fly, Render, …) works — the Dockerfile is standard.
+- **Primary target**: Railway (PaaS). Any OCI-compatible PaaS
+    (Fly, Render, …) works — the `Dockerfile` is consumable by both
+    podman and docker without modification.
 - **Image**: multi-stage, runtime base `debian:bookworm-slim`,
     goal < 100 MB.
 - **Port**: honours the `PORT` env var (default `8080`).
@@ -116,6 +117,26 @@ proposals cited above.
     at boot from `POIS_ADMIN_USER` / `POIS_ADMIN_PASS`. Absence or
     empty value = refusal to start with non-zero exit code.
     `/health` remains public for probes.
+
+## Tooling
+
+- **Toolchain / CLI pinning**: `mise` (`mise.toml`) installs the
+    Rust toolchain and any project-scoped developer CLI. The Rust
+    version pinned in `mise.toml` is required to be byte-identical
+    to `rust-toolchain.toml`'s `channel` and `Cargo.toml`'s
+    `package.rust-version`. Agent CLIs that do not participate in
+    producing the `pois` binary (for example
+    `"npm:@anthropic-ai/claude-code"`) MAY be pinned to `"latest"`.
+- **Cargo workflow**: `cargo fmt --check` and
+    `cargo clippy --all-targets -- -D warnings` are the reference
+    commands for style and lint; `cargo test` runs the unit-test
+    suite; `cargo build --release` produces the runtime binary.
+- **Container CLIs**: `podman` is the primary local tooling for
+    building and running the OCI image. `docker` (Docker Engine or
+    Docker Desktop) and `buildah` consume the same `Dockerfile`
+    without modification and are acceptable alternatives. The file
+    is named `Dockerfile` (not `Containerfile`) so both ecosystems
+    read it by default.
 
 ## Inspirations (non-contractual)
 
